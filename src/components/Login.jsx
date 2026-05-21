@@ -1,8 +1,10 @@
 import { EyeClosed, EyeIcon, X } from "lucide-react";
 import { useContext, useState } from "react";
 import { StoreGlobal } from "../Store";
+import { login } from "../service/Api";
+import { toast } from "react-toastify";
 
-function Login({setShowLogin, setShowRegister}) {
+function Login({setShowLogin, setShowRegister, fetchChats}) {
     
     const { setPopup, setPopupMsg } = useContext(StoreGlobal);
     const [ user, setUser ] = useState({
@@ -25,19 +27,40 @@ function Login({setShowLogin, setShowRegister}) {
         }
     }
 
-    function onLogin() {
+    async function onLogin() {
         event.preventDefault();
-        const tempUsername = String(user.userName).trim();
-        const tempPwd = String(user.password).trim();
-        if(tempUsername && tempPwd) {
-            console.log({user});
-        } else {
+        let missingFields = [];
+        if(!String(user.userName).trim()) {
+            missingFields.push('username')
+        }
+        if(!String(user.password).trim()) {
+            missingFields.push('password')
+        }
+        try {
+            if (missingFields.length == 0) {
+                const response = await login(user);
+                if (response.status < 300) {
+                    localStorage.setItem("token",response.data);
+                    fetchChats();
+                    setShowLogin(false);
+                    toast.success("Successfully loggedIn");
+                } else {
+                    toast.warn(response.data);
+                }
+            } else {
+                setPopupMsg({
+                    heading: 'Required',
+                    message: `Please enter ${missingFields.join(', ')}`
+                });
+                setPopup(true);
+                return;
+            }
+        } catch (error) {
             setPopupMsg({
-                heading : 'Required',
-                message : `Please enter ${!tempUsername ? 'username':''} ${!tempPwd ? 'password':''}`
+                heading: error?.code ? error.code : 'Server error',
+                message: error.message ? error.message : 'Please refresh browser.'
             });
-            setPopup(true);
-            return;
+            setPopup(true)
         }
     }
 
@@ -55,6 +78,7 @@ function Login({setShowLogin, setShowRegister}) {
                         <div className="flex flex-col flex-1 justify-evenly items-center w-3/5">
                             <input type="text" name="userName" id="userName"
                                 placeholder="Enter username"
+                                required
                                 className="w-full  p-2 border rounded-md"
                                 value={user.userName} 
                                 onChange={onHandler} />
@@ -62,7 +86,7 @@ function Login({setShowLogin, setShowRegister}) {
                             <input
                                 type={checkpwd ? "text" : "password"}
                                 name="password" id="password"
-                                placeholder="Re-enter password"
+                                placeholder="Enter password"
                                 required
                                 className="w-full p-2 border rounded-md  "
                                 value={user.password}

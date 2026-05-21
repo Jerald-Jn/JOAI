@@ -1,6 +1,8 @@
 import { EyeClosed, EyeIcon, X } from "lucide-react";
 import { useContext, useState } from "react";
 import { StoreGlobal } from "../Store";
+import { login, register } from "../service/Api";
+import { toast } from "react-toastify";
 
 function Register({ setShowRegister, setShowLogin }) {
 
@@ -36,21 +38,49 @@ function Register({ setShowRegister, setShowLogin }) {
         }
     }
 
-    function onRegister() {
+    async function onRegister() {
         event.preventDefault();
-        const tempUsername = String(registerUser.userName).trim();
-        const tempEmail = String(registerUser.email).trim();
+        let missingFields = [];
+
         const tempPwd = String(registerUser.password).trim();
         const tempRePwd = String(conformPwd).trim();
-        if(tempUsername && tempEmail && (tempPwd == tempRePwd)) {
-            console.log({registerUser})
-        } else {
+
+        if (!String(registerUser.userName).trim()) { missingFields.push("username"); }
+        if (!String(registerUser.email).trim()) { missingFields.push("email"); }
+        if (!tempPwd) { missingFields.push("password"); }
+        if (!tempRePwd) { missingFields.push("confirm password"); }
+        if (tempRePwd!=tempPwd) { missingFields.push("correct password"); }
+        
+        try {
+            if (missingFields.length == 0) {
+                const res = await (register(registerUser));
+                if(res.status<300) {
+                toast.success(res.data);
+                    setRegisterUser({
+                        email:'',
+                        userName:'',
+                        password:''
+                    });
+                    setConformPwd('');
+                setShowRegister(false);
+                setShowLogin(true);
+                } else {
+                    toast.warn(res.data);
+                }
+                return;
+            } else {
+                setPopupMsg({
+                    heading: 'Required',
+                    message: `Please enter ${missingFields.join(', ')}`
+                });
+                setPopup(true);
+            }
+        } catch (error) {
             setPopupMsg({
-                heading:'Required',
-                message:`Please enter ${!tempUsername ? 'username':''} ${!tempEmail ? 'email':''} 
-                            ${(!tempPwd ||  !tempRePwd || (tempPwd == tempRePwd)) ? 'password':''}`
+                heading: error?.code ? error.code : 'Server error',
+                message: error.message ? error.message : 'Please refresh browser.'
             });
-            setPopup(true);
+            setPopup(true)
         }
     }
 
@@ -59,7 +89,7 @@ function Register({ setShowRegister, setShowLogin }) {
             <div className="fixed h-full z-50 inset-0 w-full backdrop-blur-sm flex justify-center items-center text-white">
                 <form action=""
                     className="w-125 mx-2 bg-black/50 h-125 rounded-4xl flex flex-col justify-between items-center p-2"
-                    onSubmit={onRegister}>
+                    onSubmit={ onRegister }>
                     <div className="flex justify-around items-center h-1/6">
                         <h1 className="text-3xl">New Register</h1>
                         <X className="h-10 w-10 absolute transform translate-x-38 cursor-pointer" onClick={() => setShowRegister(false)} />
@@ -111,14 +141,11 @@ function Register({ setShowRegister, setShowLogin }) {
                         </span>
                     </div>
                     <div className="flex flex-col justify-center items-center h-1/6 gap-2">
-                        <button className="bg-blue-500 p-2 rounded-xl">SignIn</button>
+                        <button className="bg-blue-500 p-2 rounded-xl cursor-pointer hover:bg-amber-700">SignIn</button>
                         <span className="flex flex-row gap-2">
                             <span>Already have account?</span>
                             <span className="text-red-500 cursor-pointer"
-                                onClick={() => {
-                                    setShowRegister(false);
-                                    setShowLogin(true);
-                                }}>
+                                onClick={() => {setShowRegister(false); setShowLogin(true);}}>
                                 login</span>
                         </span>
                     </div>

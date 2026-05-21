@@ -3,7 +3,6 @@ import { StoreGlobal } from "../Store";
 
 function Popup({popupMsg, setPopupMsg}){
     const { heading, message} = popupMsg;
-    console.log({heading,message})
     const { setPopup } = useContext(StoreGlobal);
 
     function onClose(){
