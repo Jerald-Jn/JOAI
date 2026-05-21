@@ -39,7 +39,6 @@ function App() {
 
       if (scrollHeight > maxHeight) {
         textarea.style.height = `${maxHeight}px`;
-        // textarea.style.scroll
         textarea.style.overflowY = "auto";
       } else {
         textarea.style.height = `${scrollHeight}px`;
@@ -53,17 +52,18 @@ function App() {
     token && fetchChats();
   }, []);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: "smooth"
-    });
-  }, [chats]);
+  // useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({
+  //     behavior: "smooth"
+  //   });
+  // }, [chats]);
 
   const fetchChats = async () => {
     try {
-      const response = (await fetchHistory()).data
+      const response = (await fetchHistory())?.data
       setChats(response)
     } catch (error) {
+      setChats([])
       console.error("Error fetching chats:", error);
     }
   };
@@ -151,6 +151,7 @@ function App() {
           <p className='hover:text-black hover:cursor-pointer' onClick={()=>{
             localStorage.removeItem('token');
             setShowMenu(false);
+            fetchChats();
           }} >Logout</p>
         </div>
       }
@@ -173,7 +174,7 @@ function App() {
 
             <div ref={messagesEndRef} className="flex flex-col gap-8">
               {
-                chats.length > 1 &&
+                chats?.length > 1 && 
                 chats.map((chat, index) => {
                   const isUser = chat.role === "User";
                   return (
@@ -196,7 +197,7 @@ function App() {
             </div>
             
 
-            {(!chats && !isLoading)&& <div className="text-gray-400 text-2xl text-center mt-20 font-light">How can I help you today?</div>}
+            {(chats?.length==0 && !isLoading)&& <div className="text-gray-400 text-2xl text-center mt-20 font-light">How can I help you today?</div>}
 
             <div className="fixed bottom-0 left-0 w-full z-40 p-4 pb-10 flex justify-center items-end pointer-events-none">
               <div className="relative w-full md:w-2/3 lg:w-1/2 flex items-end pointer-events-auto">

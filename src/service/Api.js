@@ -9,7 +9,10 @@ export const promt = (promptMsg) => {
 
 export const fetchHistory= () => {
     let token = localStorage.getItem("token");
-    let response = axios.get(`${API}/history`,{ headers: {  Authorization: `Bearer ${token}` }});
+    let response;
+    if(token) {
+        response = axios.get(`${API}/history`,{ headers: {  Authorization: `Bearer ${token}` }});
+    } 
     return response;
 }
 
