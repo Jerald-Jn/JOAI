@@ -41,7 +41,7 @@ function Login({setShowLogin, setShowRegister, fetchChats}) {
                 const response = await login(user);
                 if (response.status < 300) {
                     localStorage.setItem("token",response.data);
-                    fetchChats();
+                    await fetchChats();
                     setShowLogin(false);
                     toast.success("Successfully loggedIn");
                 } else {

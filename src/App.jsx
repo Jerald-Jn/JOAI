@@ -50,13 +50,13 @@ function App() {
     try {
       const token = localStorage.getItem("token");
       let response;
-      if(token) {
-        response = (await fetchHistory(token))?.data;
-      } else {
+      if(!token) {
         setChats([]);
         return;
-      }
-      setChats(response)
+        
+      } 
+      response = (await fetchHistory(token))?.data;
+      setChats(response || []);
     } catch (error) {
       setChats([]);
       console.error("Error fetching chats:", error);
