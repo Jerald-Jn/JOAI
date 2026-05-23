@@ -21,7 +21,6 @@ function App() {
   const textareaRef = useRef(null);
   const messagesEndRef = useRef(null);
   const menuRef = useOutsideClick(()=>setShowMenu(false))
-  const token = localStorage.getItem("token");
 
   // Auto-resize logic
   useEffect(() => {
@@ -43,11 +42,13 @@ function App() {
   }, [promptMsg]);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     token && fetchChats();
   }, []);
 
   const fetchChats = async () => {
     try {
+      const token = localStorage.getItem("token");
       let response;
       if(token) {
         response = (await fetchHistory(token))?.data;
