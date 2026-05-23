@@ -52,12 +52,6 @@ function App() {
     token && fetchChats();
   }, []);
 
-  // useEffect(() => {
-  //   messagesEndRef.current?.scrollIntoView({
-  //     behavior: "smooth"
-  //   });
-  // }, [chats]);
-
   const fetchChats = async () => {
     try {
       const response = (await fetchHistory())?.data
