@@ -50,7 +50,7 @@ function App() {
     try {
       let response;
       if(token) {
-        response = (await fetchHistory())?.data;
+        response = (await fetchHistory(token))?.data;
       } else {
         setChats([]);
         return;
