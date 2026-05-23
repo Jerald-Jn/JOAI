@@ -2,9 +2,10 @@ import axios from "axios";
 
 const API = import.meta.env.VITE_API_URL;
 
-export const promt = (promptMsg) => {
-    let token = localStorage.getItem("token");
-    return axios.post(`${API}/`,promptMsg,{ headers: { Authorization: `Bearer ${token}` }});
+export const promt = (promptMsg, token) => {
+    return axios.post(`${API}/`,{
+    message: promptMsg
+  },{ headers: { Authorization: `Bearer ${token}` }});
 }
 
 export const fetchHistory= () => {

@@ -77,7 +77,19 @@ function App() {
     try {
       setResponse('');
       setIsLoading(true);
-      const res = await promt(promptMsg);
+      let token = localStorage.getItem("token");
+      let res;
+      if(token) {
+        res = await promt(promptMsg, token);
+      } else {
+        setPopupMsg({
+          heading: 'Welcome Back',
+          message: 'Please login to continue using the chatbot.'
+        });
+        setIsLoading(false);
+        setPopup(true);
+        return;
+      }
       if (res.status < 300 && res.data?.statusCodeValue < 300) {
         setChats(pre => [
           ...pre,
