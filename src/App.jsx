@@ -12,12 +12,7 @@ import { useOutsideClick } from './hooks/useOutsideClick';
 function App() {
   const [promptMsg, setpromptMsg] = useState("");
   const { popup, setPopup, popupMsg, setPopupMsg } = useContext(StoreGlobal);
-  const [chats, setChats] =  useState([
-    {
-      role : 'AI',
-      message : 'Hello, How can I help you?'
-    }
-  ])
+  const [chats, setChats] =  useState([]);
   const [response, setResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -26,6 +21,7 @@ function App() {
   const textareaRef = useRef(null);
   const messagesEndRef = useRef(null);
   const menuRef = useOutsideClick(()=>setShowMenu(false))
+  const token = localStorage.getItem("token");
 
   // Auto-resize logic
   useEffect(() => {
@@ -47,16 +43,21 @@ function App() {
   }, [promptMsg]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     token && fetchChats();
   }, []);
 
   const fetchChats = async () => {
     try {
-      const response = (await fetchHistory())?.data
+      let response;
+      if(token) {
+        response = (await fetchHistory())?.data;
+      } else {
+        setChats([]);
+        return;
+      }
       setChats(response)
     } catch (error) {
-      setChats([])
+      setChats([]);
       console.error("Error fetching chats:", error);
     }
   };
@@ -77,7 +78,6 @@ function App() {
     try {
       setResponse('');
       setIsLoading(true);
-      let token = localStorage.getItem("token");
       let res;
       if(token) {
         res = await promt(promptMsg, token);
@@ -179,7 +179,7 @@ function App() {
 
             <div ref={messagesEndRef} className="flex flex-col gap-8">
               {
-                chats?.length > 1 && 
+                chats?.length > 0 &&
                 chats.map((chat, index) => {
                   const isUser = chat.role === "User";
                   return (
@@ -202,7 +202,7 @@ function App() {
             </div>
             
 
-            {(chats?.length==0 && !isLoading)&& <div className="text-gray-400 text-2xl text-center mt-20 font-light">How can I help you today?</div>}
+            {(chats?.length <= 1 && !isLoading)&& <div className="text-gray-400 text-2xl text-center mt-20 font-light">How can I help you today?</div>}
 
             <div className="fixed bottom-0 left-0 w-full z-40 p-4 pb-10 flex justify-center items-end pointer-events-none">
               <div className="relative w-full md:w-2/3 lg:w-1/2 flex items-end pointer-events-auto">

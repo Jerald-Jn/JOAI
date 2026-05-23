@@ -8,8 +8,7 @@ export const promt = (promptMsg, token) => {
   },{ headers: { Authorization: `Bearer ${token}` }});
 }
 
-export const fetchHistory= () => {
-    let token = localStorage.getItem("token");
+export const fetchHistory= (token) => {
     let response;
     if(token) {
         response = axios.get(`${API}/history`,{ headers: {  Authorization: `Bearer ${token}` }});
@@ -18,7 +17,7 @@ export const fetchHistory= () => {
 }
 
 export const login = (user) =>{
-    return axios.post(`${API}/login`, user,);
+    return axios.post(`${API}/login`, user);
 }
 
 export const register = (user) =>{
