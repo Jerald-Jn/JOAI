@@ -1,5 +1,4 @@
 import { useState, useContext, useRef, useEffect } from 'react';
-import axios from 'axios';
 import { StoreGlobal } from './Store';
 import Popup from './components/Popup';
 import { CircleUserRound, Loader, Send } from 'lucide-react';
