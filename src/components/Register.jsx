@@ -4,7 +4,7 @@ import { StoreGlobal } from "../Store";
 import { login, register } from "../service/Api";
 import { toast } from "react-toastify";
 
-function Register({ setShowRegister, setShowLogin }) {
+function Register({ setShowRegister, setShowLogin, setIsLoading }) {
 
     const { setPopup, setPopupMsg } = useContext(StoreGlobal);
     const [registerUser, setRegisterUser] = useState({
@@ -53,6 +53,7 @@ function Register({ setShowRegister, setShowLogin }) {
         
         try {
             if (missingFields.length == 0) {
+                setIsLoading(true);
                 const res = await (register(registerUser));
                 if(res.status<300) {
                 toast.success(res.data);
@@ -67,6 +68,7 @@ function Register({ setShowRegister, setShowLogin }) {
                 } else {
                     toast.warn(res.data);
                 }
+                setIsLoading(false);
                 return;
             } else {
                 setPopupMsg({
@@ -76,6 +78,7 @@ function Register({ setShowRegister, setShowLogin }) {
                 setPopup(true);
             }
         } catch (error) {
+            setIsLoading(false);
             setPopupMsg({
                 heading: error?.code ? error.code : 'Server error',
                 message: error.message ? error.message : 'Please refresh browser.'

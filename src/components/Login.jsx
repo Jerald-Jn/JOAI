@@ -4,7 +4,7 @@ import { StoreGlobal } from "../Store";
 import { login } from "../service/Api";
 import { toast } from "react-toastify";
 
-function Login({setShowLogin, setShowRegister, fetchChats}) {
+function Login({setShowLogin, setShowRegister, fetchChats, setIsLoading}) {
     
     const { setPopup, setPopupMsg } = useContext(StoreGlobal);
     const [ user, setUser ] = useState({
@@ -38,6 +38,7 @@ function Login({setShowLogin, setShowRegister, fetchChats}) {
         }
         try {
             if (missingFields.length == 0) {
+                setIsLoading(true);
                 const response = await login(user);
                 if (response.status < 300) {
                     localStorage.setItem("token",response.data);
@@ -45,6 +46,7 @@ function Login({setShowLogin, setShowRegister, fetchChats}) {
                     setShowLogin(false);
                     toast.success("Successfully loggedIn");
                 } else {
+                    setIsLoading(false);
                     toast.warn(response.data);
                 }
             } else {
@@ -56,6 +58,7 @@ function Login({setShowLogin, setShowRegister, fetchChats}) {
                 return;
             }
         } catch (error) {
+            setIsLoading(false);
             setPopupMsg({
                 heading: error?.code ? error.code : 'Server error',
                 message: error.message ? error.message : 'Please refresh browser.'
@@ -66,7 +69,7 @@ function Login({setShowLogin, setShowRegister, fetchChats}) {
 
     return (
         <>
-            <div className="fixed h-full inset-0 z-50 text-white flex justify-center items-center backdrop-blur-sm">
+            <div className="fixed h-full inset-0 z-40 text-white flex justify-center items-center backdrop-blur-sm">
                     <form onSubmit={onLogin} className="bg-black/50 max-w-md w-full h-87.5 m-2 flex flex-col text-center rounded-2xl items-center justify-evenly p-4" >
                         <div className="relative w-full flex items-center justify-center">
                             <h1 className="text-3xl">Welcome Back</h1>

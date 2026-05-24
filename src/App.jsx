@@ -54,10 +54,13 @@ function App() {
         setChats([]);
         return;
         
-      } 
+      }
+      setIsLoading(true)
       response = (await fetchHistory(token))?.data;
+      setIsLoading(false)
       setChats(response || []);
     } catch (error) {
+      setIsLoading(false)
       setChats([]);
       console.error("Error fetching chats:", error);
     }
@@ -135,14 +138,20 @@ function App() {
     <div className="min-h-screen flex ">
       {/* Overlays */}
       {
-        showlogin && <Login setShowLogin={setShowLogin} setShowRegister={setShowRegister} fetchChats={fetchChats} />
+        showlogin && <Login setShowLogin={setShowLogin} setShowRegister={setShowRegister} fetchChats={fetchChats} setIsLoading={setIsLoading} />
       }
       {
-        showRegister && <Register setShowRegister={setShowRegister} setShowLogin={setShowLogin} />
+        showRegister && <Register setShowRegister={setShowRegister} setShowLogin={setShowLogin} setIsLoading={setIsLoading} />
       }
       {
         popup && <Popup popupMsg={popupMsg} setPopupMsg={setPopupMsg} />
       }
+
+      {isLoading && chats?.length < 1 && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center backdrop-blur-2xl bg-black/50 bg-opacity-50">
+          <Loader className="w-16 h-16 animate-spin text-white" />
+        </div>
+      )}
 
       {/* Header */}
       <header className="fixed top-0 w-full h-16 md:h-20 z-50 bg-gray-600/90 backdrop-blur-sm p-3 md:p-5 flex items-center justify-between shadow-md">
@@ -172,12 +181,6 @@ function App() {
           <div className={`w-full p-4 md:p-8 rounded-2xl transition-all 
             
             `}>
-            {isLoading && (
-              <div className="flex justify-center p-10">
-                <Loader className="w-16 h-16 animate-spin text-white" />
-              </div>
-            )}
-
             <div ref={messagesEndRef} className="flex flex-col gap-8">
               {
                 chats?.length > 0 &&
@@ -201,6 +204,17 @@ function App() {
               }
 
             </div>
+
+            {chats?.length > 0 && isLoading && (
+              <div className='relative text-white text-5xl'>
+                <div className='bg-gray-700px-4 py-3 rounded-2xl flex gap-1'>
+                  <span className=' animate-bounce '>.</span>
+                  <span className='animate-bounce [animation-delay:0.2s]'>.</span>
+                  <span className='animate-bounce [animation-delay:0.4s]'>.</span>
+                </div>
+              </div>
+            )}
+            
             
 
             {(chats?.length <= 1 && !isLoading)&& <div className="text-gray-400 text-2xl text-center mt-20 font-light">How can I help you today?</div>}
